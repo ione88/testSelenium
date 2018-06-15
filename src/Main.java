@@ -1,8 +1,5 @@
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -11,9 +8,7 @@ import java.util.List;
 
 public class Main {
 
-    DesiredCapabilities caps;
     WebDriver driver;
-    String html;
     JavascriptExecutor jse;
 
     public static void main(String[] args) throws Exception {
@@ -50,7 +45,7 @@ public class Main {
 
         List<WebElement> regionc = driver.findElement(By.id("tabnews_regionc")).findElement(By.tagName("ol")).findElements(By.tagName("a"));
 
-        //вывод данных
+
         News regionNews = new News(regionc.size());
         regionc.forEach(news -> regionNews.push(news.getAttribute("aria-label"),news.getAttribute("href")));
         regionNews.print("Региональные новости");
@@ -64,7 +59,7 @@ public class Main {
         WebElement element = driver.findElement(By.linkText("Дзен"));
         jse.executeScript("arguments[0].scrollIntoView(true);", element);
 
-        WebElement dynamicElement = (new WebDriverWait(driver, 20))
+        (new WebDriverWait(driver, 20))
                 .until(ExpectedConditions.presenceOfElementLocated(By.className("feed__row")));
 
         List<WebElement> feeds = driver.findElements(By.className("doc__link"));

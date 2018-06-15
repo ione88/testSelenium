@@ -26,7 +26,7 @@ public class News {
     public void print(String category){
         System.out.println("("+(lastIndex+1)+") "+category);
         for(int i =0; i <= lastIndex; i++) {
-            System.out.println(titleNews[i]);
+            System.out.println((i+1)+") "+titleNews[i]);
             System.out.println("Подробности по ссылке: "+urlNews[i]);
         }
         System.out.println("");
