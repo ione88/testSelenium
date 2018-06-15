@@ -1,46 +1,35 @@
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.internal.Locatable;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.IOException;
 import java.util.List;
+
 
 public class Main {
 
     DesiredCapabilities caps;
     WebDriver driver;
     String html;
-    Document doc;
     JavascriptExecutor jse;
 
     public static void main(String[] args) throws Exception {
 
+
         Main exe = new Main();
-        exe.init();
+
+        exe.initChrome();
         exe.yandexNews();
         exe.yandexZen();
-        exe.googleSearch("Cheese!");
         exe.quit();
     }
 
-    public void init() throws Exception {
+    public void initChrome() throws Exception {
 
-        caps = new DesiredCapabilities();
-        caps.setJavascriptEnabled(true);
-        caps.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY,"c:/phantomjs.exe");
-        driver = new PhantomJSDriver();
-
+        driver = new ChromeDriver();
     }
 
     //Close the browser
@@ -49,74 +38,41 @@ public class Main {
         driver.quit();
     }
 
-    public void googleSearch(String search) throws Exception {
-        driver.get("http://www.google.com");
-        WebElement element = driver.findElement(By.name("q"));
-        element.sendKeys(search);
-
-        // Now submit the form. WebDriver will find the form for us from the element
-        element.submit();
-
-        // Check the title of the page
-        System.out.println("Page title is: " + driver.getTitle());
-
-        // Google's search is rendered dynamically with JavaScript.
-        // Wait for the page to load, timeout after 10 seconds
-        (new WebDriverWait(driver, 10)).until(new ExpectedCondition<Boolean>() {
-            public Boolean apply(WebDriver d) {
-                return d.getTitle().toLowerCase().startsWith(search);
-            }
-        });
-
-        // Should see: "cheese! - Google Search"
-        System.out.println("Page title is: " + driver.getTitle());
-
-
-    }
-
-    public void yandexNews() throws Exception{
+    public void yandexNews() throws Exception {
 
         driver.get("https://yandex.ru/");
-        html = driver.getPageSource();
+        List<WebElement> newsc = driver.findElement(By.id("tabnews_newsc")).findElement(By.tagName("ol")).findElements(By.tagName("a"));
 
-        doc = Jsoup.parse(html);
+        News mainNews = new News(newsc.size());
+        newsc.forEach(news -> mainNews.push(news.getAttribute("aria-label"),news.getAttribute("href")));
+        mainNews.print("Главные новости");
+        driver.findElement(By.linkText("в Ростовской области")).click();
 
-        Elements newsc = doc.select("div[id$=newsc]").select("ol[class$=list news__list]").select("li");
+        List<WebElement> regionc = driver.findElement(By.id("tabnews_regionc")).findElement(By.tagName("ol")).findElements(By.tagName("a"));
 
-        print("Главные новости:");
-        for (Element news : newsc) {
-            print(news.text());
-        }
-        Elements regionc = doc.select("div[id$=regionc]").select("ol[class$=list news__list]").select("li");
-        print("\nРегиональные новости:");
-        for (Element news : regionc) {
-            print(news.text());
-        }
-
+        //вывод данных
+        News regionNews = new News(regionc.size());
+        regionc.forEach(news -> regionNews.push(news.getAttribute("aria-label"),news.getAttribute("href")));
+        regionNews.print("Региональные новости");
     }
 
 
-    public void yandexZen() throws Exception{
+    public void yandexZen() throws Exception {
 
         driver.get("https://yandex.ru/");
-        JavascriptExecutor jse = (JavascriptExecutor)driver;
+        JavascriptExecutor jse = (JavascriptExecutor) driver;
         WebElement element = driver.findElement(By.linkText("Дзен"));
-        jse.executeScript("arguments[0].scrollIntoView(true);",element);
+        jse.executeScript("arguments[0].scrollIntoView(true);", element);
 
-        html = driver.getPageSource();
-        doc = Jsoup.parse(html);
+        WebElement dynamicElement = (new WebDriverWait(driver, 20))
+                .until(ExpectedConditions.presenceOfElementLocated(By.className("feed__row")));
 
-        print("\nДЗЕН");
-        Elements feeds = doc.select("span[class$='i-multiline-overflow']");
+        List<WebElement> feeds = driver.findElements(By.className("doc__link"));
 
-        for (Element feed : feeds) {
-            print(feed.text());
-        }
-
+        News zenNews = new News(feeds.size());
+        feeds.forEach(news -> zenNews.push(news.findElement(By.className("clamp__visible-tokens")).getText(),news.getAttribute("href")));
+        zenNews.print("Лента Дзен");
     }
 
-    private static void print(String msg, Object... args) {
-        System.out.println(String.format(msg, args));
-    }
 
 }
