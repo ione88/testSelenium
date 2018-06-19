@@ -1,6 +1,6 @@
 package parse;
 
-import util.MySQLInsert;
+import util.MySQLInsertNews;
 
 import java.sql.SQLException;
 
@@ -19,7 +19,7 @@ public class News {
     public String push(String title, String url, String typeOfNews) throws SQLException {
         //сохранять в базу данных
 
-        MySQLInsert.insert(title,url,typeOfNews);
+        MySQLInsertNews.insert(title,url,typeOfNews);
         lastIndex++;
 
         if ((lastIndex + 1) >= titleNews.length) {

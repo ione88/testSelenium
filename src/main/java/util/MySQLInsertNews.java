@@ -2,16 +2,15 @@ package util;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
-import parse.MyParser;
-import parse.YandexNewsModule;
 
 import java.sql.*;
 import java.util.Calendar;
 
-public class MySQLInsert {
+import static java.lang.String.format;
+
+public class MySQLInsertNews {
 
     public static void insert(String title, String url, String typeOfNews) throws SQLException {
 
@@ -36,7 +35,11 @@ public class MySQLInsert {
         };
 
         // No DataSource so we must handle Connections manually
-        QueryRunner run = new QueryRunner(CustomDataSource.getInstance());
+
+        Injector injector = Guice.createInjector(new DataSourceModule());
+        DataSourceMySQL dataSource = injector.getInstance(DataSourceMySQL.class);
+
+        QueryRunner run = new QueryRunner(dataSource.getDataSource());
 
         // create a sql date object so we can use it in our INSERT statement
         Calendar calendar = Calendar.getInstance();
