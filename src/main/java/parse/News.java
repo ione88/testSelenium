@@ -1,3 +1,9 @@
+package parse;
+
+import util.MySQLInsert;
+
+import java.sql.SQLException;
+
 public class News {
 
     String[] titleNews;
@@ -10,7 +16,10 @@ public class News {
         lastIndex = -1;
     }
 
-    public String push(String title, String url) {
+    public String push(String title, String url, String typeOfNews) throws SQLException {
+        //сохранять в базу данных
+
+        MySQLInsert.insert(title,url,typeOfNews);
         lastIndex++;
 
         if ((lastIndex + 1) >= titleNews.length) {
@@ -23,7 +32,8 @@ public class News {
         return "Ok";
     }
 
-    public void print(String category){
+    public void print(String category) throws SQLException {
+
         System.out.println("("+(lastIndex+1)+") "+category);
         for(int i =0; i <= lastIndex; i++) {
             System.out.println((i+1)+") "+titleNews[i]);
@@ -33,7 +43,6 @@ public class News {
         return;
     }
 
-    public void clear() {
-        this.lastIndex = -1;
-    }
+
+
 }
