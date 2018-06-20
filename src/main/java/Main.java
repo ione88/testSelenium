@@ -23,9 +23,9 @@ public class Main {
     }
 
     private void parseYandexZen() throws SQLException {
-        Injector injector = Guice.createInjector(new YandexNewsModule());
-        MyParser yandexNews = injector.getInstance(MyParser.class);
-        yandexNews.makeParse();
+        Injector injector = Guice.createInjector(new YandexZenModule());
+        MyParser yandexZen = injector.getInstance(MyParser.class);
+        yandexZen.makeParse();
     }
 
     private void parseDnsBest() throws SQLException {
