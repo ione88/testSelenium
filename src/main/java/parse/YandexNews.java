@@ -27,7 +27,7 @@ public class YandexNews implements Parse {
                 e.printStackTrace();
             }
         });
-        mainNews.print("Главные новости");
+       // mainNews.print("Главные новости");
 
         driver.findElement(By.linkText("в Ростовской области")).click();
 
@@ -40,7 +40,7 @@ public class YandexNews implements Parse {
                 e.printStackTrace();
             }
         });
-        regionNews.print("Региональные новости");
+      //  regionNews.print("Региональные новости");
         driver.quit();
     }
 }

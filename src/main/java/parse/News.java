@@ -32,6 +32,7 @@ public class News {
         return "Ok";
     }
 
+    @Deprecated
     public void print(String category) throws SQLException {
 
         System.out.println("("+(lastIndex+1)+") "+category);
@@ -42,7 +43,4 @@ public class News {
         System.out.println("");
         return;
     }
-
-
-
 }

@@ -37,7 +37,7 @@ public class YandexZen implements Parse {
                 e.printStackTrace();
             }
         });
-        zenNews.print("Лента Дзен");
+      //  zenNews.print("Лента Дзен");
         driver.quit();
     }
 }
