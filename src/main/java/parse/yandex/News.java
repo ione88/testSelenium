@@ -1,5 +1,7 @@
 package parse.yandex;
 
+import org.openqa.selenium.WebElement;
+
 public class News {
 
     String title;
@@ -29,4 +31,6 @@ public class News {
     public void setTypeOfNews(String typeOfNews) {
         this.typeOfNews = typeOfNews;
     }
+
+
 }

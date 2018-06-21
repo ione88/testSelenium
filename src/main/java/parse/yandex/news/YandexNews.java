@@ -6,7 +6,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import parse.yandex.News;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,37 +14,36 @@ public class YandexNews implements Parser {
     JavascriptExecutor jse;
 
     @Override
-    public Object[] parser(String userCity) throws SQLException {
+    public ArrayList<News> parser(String userCity){
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.get("https://yandex.ru/");
-
+        //создаем новый пустой список новостей, которые будем парсить
         ArrayList<News> newsfeed = new ArrayList<News>();
 
+        //получаем список 4  новостей из главное категории
         List<WebElement> mainnewsfeed = driver.findElements(By.xpath("//div[contains(@class,'content-tabs__items_active_true')]//ol[not(contains(@class,'news__animation-list'))]//a"));
+        //добавляем главные новости в список
+        mainnewsfeed.forEach(mainnews -> newsfeed.add(getNews(mainnews,"main")));
 
-        mainnewsfeed.forEach(mainnews -> {
-            News news = new News();
-            news.setUrl(mainnews.getAttribute("href"));
-            news.setTitle(mainnews.getAttribute("aria-label"));
-            news.setTypeOfNews("main");
-            newsfeed.add(news);
-        });
-
-
-        driver.findElement(By.linkText("в Ростовской области")).click();
-
+        //переходим на вкладку региональные новости
+        // tabnews_region
+        driver.findElement(By.xpath("//div[@id='tabnews_region']//a")).click();
+        //получаем список 4  новостей из главное категории
         List<WebElement> regionnewsfeed = driver.findElements(By.xpath("//div[contains(@class,'content-tabs__items_active_true')]//ol[not(contains(@class,'news__animation-list'))]//a"));
-        regionnewsfeed.forEach(regionnews -> {
-            News news = new News();
-            news.setUrl(regionnews.getAttribute("href"));
-            news.setTitle(regionnews.getAttribute("aria-label"));
-            news.setTypeOfNews("region");
-            newsfeed.add(news);
-        });
-
+        //добавляем региональные новости в список
+        regionnewsfeed.forEach(regionnews -> newsfeed.add(getNews(regionnews,"region")));
+        //закрываем браузер
         driver.quit();
-        return newsfeed.toArray();
+        //возвращаем найденые новости
+        return newsfeed;
+    }
 
+    private News getNews(WebElement webnews, String typeOfNews){
+        News news = new News();
+        news.setUrl(webnews.getAttribute("href"));
+        news.setTitle(webnews.getAttribute("aria-label"));
+        news.setTypeOfNews(typeOfNews);
+        return news;
     }
 }

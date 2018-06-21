@@ -1,9 +1,11 @@
 package parse.yandex.news;
 
-import java.sql.SQLException;
+import parse.yandex.News;
+
+import java.util.ArrayList;
 
 public interface Parser {
 
-    Object[] parser(String city) throws SQLException;
+    ArrayList<News> parser(String city);
 }
 

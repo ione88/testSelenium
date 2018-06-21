@@ -1,9 +1,12 @@
 package parse;
 
 import com.google.inject.Inject;
+import parse.dns.Product;
 import parse.dns.best.Parser;
+import parse.yandex.News;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class MyParser {
     private parse.yandex.news.Parser yandexNews;
@@ -21,15 +24,15 @@ public class MyParser {
     }
 
 
-    public Object[] parseYandexNews(String city) throws SQLException {
+    public ArrayList<News> parseYandexNews(String city) {
         return yandexNews.parser(city);
     }
 
-    public Object[] parseYandexZen(String city) throws SQLException {
+    public ArrayList<News> parseYandexZen(String city) {
         return yandexZen.parser(city);
     }
 
-    public Object[] parseDnsBest(String city) throws SQLException {
+    public ArrayList<Product> parseDnsBest(String city)  {
         return dnsBest.parser(city);
     }
 }

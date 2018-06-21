@@ -1,5 +1,3 @@
-package parse;
-
 import com.google.inject.AbstractModule;
 import parse.dns.best.DnsBest;
 import parse.dns.best.Parser;
