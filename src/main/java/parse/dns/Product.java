@@ -1,13 +1,6 @@
-package parse;
-
-import util.MySQLInsertNews;
-import util.MySQLInsertProduct;
-
-import java.sql.SQLException;
+package parse.dns;
 
 public class Product {
-
-
     //Наименование - строка
     private String name;
     //Код товара – уникальное поле, целое
@@ -69,12 +62,5 @@ public class Product {
     public void setParametrs(String parametrs) {
         this.parametrs = parametrs;
     }
-
-    public void push() throws SQLException {
-        MySQLInsertProduct.insert(this);
-    }
-
-
-
 
 }

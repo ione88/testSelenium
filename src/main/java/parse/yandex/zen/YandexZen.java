@@ -1,4 +1,4 @@
-package parse;
+package parse.yandex.zen;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -8,36 +8,39 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import parse.yandex.News;
+
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class YandexZen implements Parse {
+public class YandexZen implements Parser {
     WebDriver driver;
     JavascriptExecutor jse;
 
     @Override
-    public void parse() throws SQLException {
+    public Object[] parser(String userCity) throws SQLException {
         driver = new ChromeDriver();
-        jse = (JavascriptExecutor)driver;
-
+        driver.manage().window().maximize();
         driver.get("https://yandex.ru/");
-        WebElement element = driver.findElement(By.linkText("Дзен"));
-        jse.executeScript("arguments[0].scrollIntoView(true);", element);
+        jse = (JavascriptExecutor)driver;
+        jse.executeScript("arguments[0].scrollIntoView(true);", driver.findElement(By.linkText("Дзен")));
 
         (new WebDriverWait(driver, 20))
                 .until(ExpectedConditions.presenceOfElementLocated(By.className("feed__row")));
 
         List<WebElement> feeds = driver.findElements(By.className("doc__link"));
 
-        News zenNews = new News(feeds.size());
-        feeds.forEach(news -> {
-            try {
-                zenNews.push(news.findElement(By.className("clamp__visible-tokens")).getText(), news.getAttribute("href"),"zen");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        ArrayList<News> newsfeed = new ArrayList<News>();
+        feeds.forEach(webnews -> {
+            News news = new News();
+            news.setUrl(webnews.getAttribute("href"));
+            news.setTitle(webnews.findElement(By.className("clamp__visible-tokens")).getText());
+            news.setTypeOfNews("zen");
+            newsfeed.add(news);
         });
-      //  zenNews.print("Лента Дзен");
+
         driver.quit();
+        return newsfeed.toArray();
     }
 }

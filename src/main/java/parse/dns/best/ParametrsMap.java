@@ -1,4 +1,4 @@
-package parse;
+package parse.dns.best;
 
 import java.util.HashMap;
 

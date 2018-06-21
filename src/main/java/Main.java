@@ -1,36 +1,35 @@
 import com.google.inject.*;
-import parse.*;
-
-import java.sql.SQLException;
+import parse.MyParser;
+import parse.dns.Product;
+import parse.yandex.News;
+import util.MySQLInsertNews;
+import util.MySQLInsertProduct;
 
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        Main main = new Main();
 
-        main.parseYandexNews();
-        main.parseYandexZen();
-        main.parseDnsBest();
+        String userCity = "москва";
+        Injector injector = Guice.createInjector(new MyParseModule());
+        MyParser myParser = injector.getInstance(MyParser.class);
+
+        Object[] newsFeed = myParser.parseYandexNews(userCity);
+        for (Object news : newsFeed) {
+            MySQLInsertNews.insert((News) news);
+        }
+
+        Object[] zenFeed = myParser.parseYandexZen(userCity);
+        for (Object news : zenFeed) {
+            MySQLInsertNews.insert((News) news);
+        }
+
+        Object[] products = myParser.parseDnsBest(userCity);
+        for (Object product : products) {
+            MySQLInsertProduct.insert((Product) product);
+        }
 
     }
 
-    private void parseYandexNews() throws SQLException {
-        Injector injector = Guice.createInjector(new YandexNewsModule());
-        MyParser yandexNews = injector.getInstance(MyParser.class);
-        yandexNews.makeParse();
-    }
-
-    private void parseYandexZen() throws SQLException {
-        Injector injector = Guice.createInjector(new YandexZenModule());
-        MyParser yandexZen = injector.getInstance(MyParser.class);
-        yandexZen.makeParse();
-    }
-
-    private void parseDnsBest() throws SQLException {
-        Injector injector = Guice.createInjector(new DnsBestModule());
-        MyParser DnsBest = injector.getInstance(MyParser.class);
-        DnsBest.makeParse();
-    }
 }

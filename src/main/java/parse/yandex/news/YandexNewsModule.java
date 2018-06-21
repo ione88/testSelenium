@@ -1,10 +1,10 @@
-package parse;
+package parse.yandex.news;
 
 import com.google.inject.AbstractModule;
 
 public class YandexNewsModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(Parse.class).to(YandexNews.class);
+        bind(Parser.class).to(YandexNews.class);
     }
 }

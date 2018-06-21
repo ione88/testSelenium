@@ -1,27 +1,31 @@
-package parse;
+package parse.dns.best;
 
 import com.google.gson.Gson;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import parse.dns.Product;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DnsBest implements Parse {
+public class DnsBest implements Parser {
 
     WebDriver driver;
     JavascriptExecutor jse;
 
     @Override
-    public void parse() throws SQLException {
+    public Object[] parser(String userCity) throws SQLException {
         driver = new ChromeDriver();
+        driver.manage().window().maximize();
         driver.get("https://www.dns-shop.ru/");
+
+        ArrayList<Product> products = new ArrayList<Product>();
+
+        // передаю в функцию изменения города, город который хочет пользователь и город указаный сейчас на сайте
+        changeCity(userCity, driver.findElement(By.className("w-choose-city-widget")).getText());
 
         List<WebElement> bestOffers = driver.findElement(By.className("shopwindow-products")).findElements(By.xpath("//a[@data-product-param='name']"));
         ArrayList<String> urls = new ArrayList<String>();
@@ -59,21 +63,46 @@ public class DnsBest implements Parse {
                     String value = row.get(1).getText();
                     Integer lastParametr = allParametrsMaps.size() - 1;
 
-                    allParametrsMaps.get(lastParametr).parametrs.put(key,value);
+                    allParametrsMaps.get(lastParametr).parametrs.put(key, value);
                 }
             });
 
             Gson gson = new Gson();
             product.setParametrs(gson.toJson(allParametrsMaps));
 
-            try {
-                product.push();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            products.add(product);
         });
         driver.quit();
+        return products.toArray();
 
     }
 
+    private void changeCity(String userCity, String currentCity) {
+        // если города равны, то ничего делать не нужно выходим из программы
+        if (userCity.equals(currentCity)) {
+            System.out.println("Проверка - город совпадает, изменения не нужны");
+            return;
+        }
+        // кликаем на кнопку
+        driver.findElement(By.className("w-choose-city-widget")).click();
+
+        String xpathToCityInput = "//div[contains(@class,'select-city-modal') and not(contains(@id,'select-city'))]//input[@placeholder='Название города']";
+
+        (new WebDriverWait(driver, 20))
+                .until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathToCityInput)));
+
+        // выбираем форму для ввода города
+        WebElement cityInput = driver.findElement(By.xpath(xpathToCityInput));
+        cityInput.sendKeys(userCity);
+        if (driver.findElement(By.xpath("//div[contains(@class,'show-hint')]")).isDisplayed()) {
+            System.out.println("Проверка - город изменён");
+            cityInput.sendKeys(Keys.ENTER);
+        } else {
+            System.out.println("Проверка - город не найден оставляем по умолчанию " + currentCity);
+            driver.findElement(By.xpath("//div[contains(@class,'select-city-modal') and not(contains(@id,'select-city'))]//button[contains(@data-dismiss,'modal')]")).click();
+        }
+    }
 }
+
+
+
