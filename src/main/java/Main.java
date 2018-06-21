@@ -1,35 +1,38 @@
-import com.google.inject.*;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import parse.MyParseModule;
 import parse.MyParser;
 import parse.dns.Product;
 import parse.yandex.News;
 import util.MySQLInsertNews;
 import util.MySQLInsertProduct;
 
+import java.util.Scanner;
+
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
-
-
-        String userCity = "москва";
+        String userCity = enterSity("Москва");
         Injector injector = Guice.createInjector(new MyParseModule());
         MyParser myParser = injector.getInstance(MyParser.class);
 
-        Object[] newsFeed = myParser.parseYandexNews(userCity);
-        for (Object news : newsFeed) {
+        for (Object news : myParser.parseYandexNews(userCity))
             MySQLInsertNews.insert((News) news);
-        }
 
-        Object[] zenFeed = myParser.parseYandexZen(userCity);
-        for (Object news : zenFeed) {
+        for (Object news : myParser.parseYandexZen(userCity))
             MySQLInsertNews.insert((News) news);
-        }
 
-        Object[] products = myParser.parseDnsBest(userCity);
-        for (Object product : products) {
+        for (Object product : myParser.parseDnsBest(userCity))
             MySQLInsertProduct.insert((Product) product);
-        }
+    }
 
+    private static String enterSity(String defualtCity) {
+        Scanner in = new Scanner(System.in);
+        System.out.print("Введите ваш город или нажмите Enter для г."+defualtCity+": ");
+        String userCity = in.nextLine();
+        if (userCity=="") return  defualtCity;
+        return  userCity;
     }
 
 }

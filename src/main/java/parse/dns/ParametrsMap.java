@@ -1,13 +1,13 @@
-package parse.dns.best;
+package parse.dns;
 
 import java.util.HashMap;
 
 public class ParametrsMap {
     String parametrType;
-    HashMap<String,String> parametrs;
+    public HashMap<String,String> parametrs;
 
 
-    ParametrsMap(String parametrType){
+    public ParametrsMap(String parametrType){
         this.parametrType = parametrType;
         this.parametrs = new HashMap<>();
     }
