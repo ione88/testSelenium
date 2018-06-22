@@ -11,7 +11,7 @@ import parse.dns.Product;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DnsBest implements Parser {
+public class DnsBest implements BestParser {
 
     WebDriver driver;
     JavascriptExecutor jse;

@@ -4,7 +4,7 @@ import parse.yandex.News;
 
 import java.util.ArrayList;
 
-public interface Parser {
+public interface ZenParser {
 
     ArrayList<News> parser(String city);
 }

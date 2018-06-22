@@ -2,25 +2,26 @@ package parse;
 
 import com.google.inject.Inject;
 import parse.dns.Product;
-import parse.dns.best.Parser;
+import parse.dns.best.BestParser;
 import parse.yandex.News;
+import parse.yandex.news.NewsParser;
+import parse.yandex.zen.ZenParser;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class MyParser {
-    private parse.yandex.news.Parser yandexNews;
-    private parse.yandex.zen.Parser yandexZen;
-    private parse.dns.best.Parser dnsBest;
+    private NewsParser yandexNews;
+    private ZenParser yandexZen;
+    private BestParser dnsBest;
 
 
     @Inject
-    public MyParser(parse.yandex.news.Parser parserNews,
-                    parse.yandex.zen.Parser parserZen,
-                    parse.dns.best.Parser parserBest) {
-        this.yandexNews = parserNews;
-        this.yandexZen = parserZen;
-        this.dnsBest = parserBest;
+    public MyParser(NewsParser newsParserNews,
+                    ZenParser zenParserZen,
+                    BestParser bestParserBest) {
+        this.yandexNews = newsParserNews;
+        this.yandexZen = zenParserZen;
+        this.dnsBest = bestParserBest;
     }
 
 

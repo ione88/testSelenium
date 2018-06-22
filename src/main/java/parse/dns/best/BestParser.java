@@ -4,7 +4,7 @@ import parse.dns.Product;
 
 import java.util.ArrayList;
 
-public interface Parser {
+public interface BestParser {
 
     ArrayList<Product> parser(String city);
 }

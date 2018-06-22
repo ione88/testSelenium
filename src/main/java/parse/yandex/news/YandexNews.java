@@ -9,7 +9,7 @@ import parse.yandex.News;
 import java.util.ArrayList;
 import java.util.List;
 
-public class YandexNews implements Parser {
+public class YandexNews implements NewsParser {
     WebDriver driver;
     JavascriptExecutor jse;
 

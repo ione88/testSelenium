@@ -9,9 +9,7 @@ public class DataSourceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        //install(new ConfigurationModule().fromPath(new File("/")));
-        // Error notifying TypeListener ^^^
-        install(ConfigurationModule.create());
+        install(new ConfigurationModule().fromPath(new File("./src/main/resources/")));
         requestInjection(DataSourceMySQL.class);
     }
 }

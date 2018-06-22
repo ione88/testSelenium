@@ -13,7 +13,7 @@ import parse.yandex.News;
 import java.util.ArrayList;
 import java.util.List;
 
-public class YandexZen implements Parser {
+public class YandexZen implements ZenParser {
     WebDriver driver;
     JavascriptExecutor jse;
 
