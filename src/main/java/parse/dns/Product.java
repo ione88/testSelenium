@@ -1,5 +1,7 @@
 package parse.dns;
 
+import java.util.ArrayList;
+
 public class Product {
     //Наименование - строка
     private String name;
@@ -12,7 +14,10 @@ public class Product {
     //Url - строка
     private String url;
 
-    // JSON строка с параметрами.
+    //список магазинов, где товар в наличии или доступен заказ
+    private ArrayList<Available> availables;
+
+    // GSON строка с параметрами.
     private String parametrs;
 
     public String getName() {
@@ -63,4 +68,11 @@ public class Product {
         this.parametrs = parametrs;
     }
 
+    public ArrayList<Available> getAvailables() {
+        return availables;
+    }
+
+    public void setAvailables(ArrayList<Available> avalibles) {
+        this.availables = avalibles;
+    }
 }

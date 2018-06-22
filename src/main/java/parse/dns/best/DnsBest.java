@@ -5,6 +5,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import parse.dns.Available;
 import parse.dns.ParametrsMap;
 import parse.dns.Product;
 
@@ -15,24 +16,30 @@ public class DnsBest implements BestParser {
 
     WebDriver driver;
     JavascriptExecutor jse;
+    String City;
 
     @Override
     public ArrayList<Product> parser(String userCity) {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.get("https://www.dns-shop.ru/");
+
         //создаем новый пустой список продуктов, которые будем парсить
         ArrayList<Product> products = new ArrayList<Product>();
 
         // передаю в функцию изменения города, город который хочет пользователь и город указаный сейчас на сайте
-        changeCity(userCity, driver.findElement(By.className("w-choose-city-widget")).getText());
+        City = changeCity(userCity, driver.findElement(By.className("w-choose-city-widget")).getText());
+
         //получаем список url всех продуктов из категории лучшие предложения
         List<WebElement> bestOffers = driver.findElement(By.className("shopwindow-products")).findElements(By.xpath("//a[@data-product-param='name']"));
+
         //сохраняем все ссылки в список, что бы потом идти по нему
         ArrayList<String> urls = new ArrayList<String>();
         bestOffers.forEach(offer -> urls.add(offer.getAttribute("href")));
+
         //идём по список страниц с товарами и сохраняем в нашем списке products
         urls.forEach(url -> products.add(getproduct(url)));
+
         //закрываем браузер
         driver.quit();
         //возвращаем найденые товары
@@ -40,11 +47,10 @@ public class DnsBest implements BestParser {
 
     }
 
-    private void changeCity(String userCity, String currentCity) {
+    private String changeCity(String userCity, String currentCity) {
         // если города равны, то ничего делать не нужно выходим из программы
-        if (userCity.equals(currentCity)) {
-            System.out.println("Проверка - город совпадает, изменения не нужны");
-            return;
+        if (userCity.toLowerCase().equals(currentCity.toLowerCase())) {
+            return currentCity;
         }
         // кликаем на кнопку
         driver.findElement(By.className("w-choose-city-widget")).click();
@@ -61,12 +67,12 @@ public class DnsBest implements BestParser {
         cityInput.sendKeys(userCity);
         // если город найден однозначно (появилась подсказка), то меняет город
         if (driver.findElement(By.xpath("//div[contains(@class,'show-hint')]")).isDisplayed()) {
-            System.out.println("Проверка - город изменён");
             cityInput.sendKeys(Keys.ENTER);
+            return driver.findElement(By.xpath("//div[contains(@class,'show-hint')]/b")).getText().replaceAll("\\s+","");
         // город определить не удалось
         } else {
-            System.out.println("Проверка - город не найден оставляем по умолчанию " + currentCity);
             driver.findElement(By.xpath("//div[contains(@class,'select-city-modal') and not(contains(@id,'select-city'))]//button[contains(@data-dismiss,'modal')]")).click();
+            return currentCity;
         }
     }
 
@@ -87,15 +93,18 @@ public class DnsBest implements BestParser {
         product.setPrice(Integer.parseInt(driver.findElement(By.className("price_g")).findElement(By.tagName("span")).getAttribute("data-price-value")));
         //Описание – строка
         product.setDescription(driver.findElement(By.id("description")).findElement(By.tagName("p")).getText());
-        // превращаем объект с параметами в gson строку продукты
-        Gson gson = new Gson();
-        product.setParametrs(gson.toJson(getallParametrsMaps()));
+        //Превращаем объект с параметами в gson строку продукты
+        product.setParametrs((new Gson()).toJson(getAllParametrsMaps()));
+        //Сохраняем информацию о доступности в магазинах
+        product.setAvailables(getAllAvailables(product.getCode()));
+
 
         return product;
     }
 
+
     //считывает Характеристики в объект
-    private ArrayList<ParametrsMap> getallParametrsMaps() {
+    private ArrayList<ParametrsMap> getAllParametrsMaps() {
         //открываем вкладку характеристики
         driver.findElement(By.linkText("Характеристики")).click();
         //получаем список параметров (характеристик)
@@ -115,10 +124,52 @@ public class DnsBest implements BestParser {
                 String value = row.get(1).getText();
                 Integer lastParametr = allParametrsMaps.size() - 1;
 
-                allParametrsMaps.get(lastParametr).parametrs.put(key, value);
+                allParametrsMaps.get(lastParametr).parametrsput(key, value);
             }
         });
         //возвращаем объект с параметрами
         return allParametrsMaps;
     }
+
+    private ArrayList<Available> getAllAvailables(Integer productCode) {
+        //открываем вкладку наличии в магазинах button
+        driver.findElement(By.xpath("//div[@class='clearfix']//a[contains(@role,'button')]")).click();
+        //получаем список магазинов (характеристик) avails-item row avails-items
+
+        String xpathToShops = "//div[contains(@class,'avails-item') and contains(@class,'row')]";
+
+        //ожидаем загрузки
+        (new WebDriverWait(driver, 20))
+                .until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathToShops)));
+
+        List<WebElement> shops = driver.findElements(By.xpath(xpathToShops));
+        //создаем новый пустой список наличии в магазинах
+        ArrayList<Available> allAvailables = new ArrayList();
+
+        //для каждого магазина сохраняем доступность //
+        shops.forEach(shop -> {
+            Available available = new Available();
+            available.setCode(productCode);
+            available.setCity(City);
+            available.setShopName(shop.findElement(By.xpath(".//div[@class='shop-name']//a")).getText());
+            //узнаем число, это либо количество товара либо количество дней ожидания
+            Integer count = Integer.parseInt(shop.findElement(By.xpath(".//div[contains(@class,'col-3')]")).getText().replaceAll("[^0-9\\+]", ""));
+            // проверяем если товар в наличии то записываем его количество
+            if (shop.findElements(By.xpath(".//div[contains(@class,'available')]")).size() > 0){
+                available.setCount(count);
+                available.setWaitingForOrderInDays(0);
+            // иначе то записываем требуемое количество дней ожидания товара
+            } else{
+                available.setCount(0);
+                available.setWaitingForOrderInDays(count);
+            }
+            allAvailables.add(available);
+
+        });
+        //возвращаем объект с параметрами
+        return allAvailables;
+
+
+    }
+
 }
