@@ -153,15 +153,15 @@ public class DnsBest implements BestParser {
             available.setCity(City);
             available.setShopName(shop.findElement(By.xpath(".//div[@class='shop-name']//a")).getText());
             //узнаем число, это либо количество товара либо количество дней ожидания
-            Integer count = Integer.parseInt(shop.findElement(By.xpath(".//div[contains(@class,'col-3')]")).getText().replaceAll("[^0-9\\+]", ""));
+
             // проверяем если товар в наличии то записываем его количество
             if (shop.findElements(By.xpath(".//div[contains(@class,'available')]")).size() > 0){
-                available.setCount(count);
+                available.setCount(getCountInShop(shop.findElement(By.xpath(".//div[contains(@class,'col-3')]"))));
                 available.setWaitingForOrderInDays(0);
             // иначе то записываем требуемое количество дней ожидания товара
             } else{
                 available.setCount(0);
-                available.setWaitingForOrderInDays(count);
+                available.setWaitingForOrderInDays(WaitingForOrderInDays(shop.findElement(By.xpath(".//div[contains(@class,'col-3')]"))));
             }
             allAvailables.add(available);
 
@@ -170,6 +170,22 @@ public class DnsBest implements BestParser {
         return allAvailables;
 
 
+    }
+
+    private Integer getCountInShop(WebElement order) {
+        return Integer.parseInt(order.getText().replaceAll("[^0-9\\+]", ""));
+    }
+
+    private Integer WaitingForOrderInDays(WebElement order) {
+        //если нет цифр (3,4 или 5), а значит результат: завтра или послезавтра
+        if (order.getText().replaceAll("[^0-9\\+]", "").isEmpty()){
+            //если нет "послезавтра", то реузльтат 1 == завтра
+            if ( order.getText().lastIndexOf("послезавтра") == -1 )
+                return 1;
+            //иначе "послезавтра"
+            return 2;
+        }
+        return Integer.parseInt(order.getText().replaceAll("[^0-9\\+]", ""));
     }
 
 }
