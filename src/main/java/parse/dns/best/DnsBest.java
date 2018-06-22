@@ -3,8 +3,6 @@ package parse.dns.best;
 import com.google.gson.Gson;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import parse.dns.Available;
@@ -116,9 +114,9 @@ public class DnsBest implements BestParser {
             List<WebElement> row = parametr.findElements(By.tagName("td"));
             // если в строке только 1 столбец, значит это новый параметр, сохраняем его
             if (row.size() == 1) {
-            // создать новый массив обекта
+                // создать новый массив обекта
                 allParametrsMaps.add(new ParametrsMap(row.get(0).getText()));
-            //если 2 столбца, то значит в этой строке есть характеристика и значение параметра, сохраняем их.
+                //если 2 столбца, то значит в этой строке есть характеристика и значение параметра, сохраняем их.
             } else {
                 // добавить в текущий массив новый элемент
                 String key = row.get(0).findElement(By.tagName("span")).getText();
@@ -156,11 +154,11 @@ public class DnsBest implements BestParser {
             //узнаем число, это либо количество товара либо количество дней ожидания
 
             // проверяем если товар в наличии то записываем его количество
-            if (shop.findElements(By.xpath(".//div[contains(@class,'available')]")).size() > 0){
+            if (shop.findElements(By.xpath(".//div[contains(@class,'available')]")).size() > 0) {
                 available.setCount(getCountInShop(shop.findElement(By.xpath(".//div[contains(@class,'col-3')]"))));
                 available.setWaitingForOrderInDays(0);
-            // иначе то записываем требуемое количество дней ожидания товара
-            } else{
+                // иначе то записываем требуемое количество дней ожидания товара
+            } else {
                 available.setCount(0);
                 available.setWaitingForOrderInDays(WaitingForOrderInDays(shop.findElement(By.xpath(".//div[contains(@class,'col-3')]"))));
             }
@@ -178,15 +176,23 @@ public class DnsBest implements BestParser {
     }
 
     private Integer WaitingForOrderInDays(WebElement order) {
-        //если нет цифр (3,4 или 5), а значит результат: завтра или послезавтра
-        if (order.getText().replaceAll("[^0-9\\+]", "").isEmpty()){
-            //если нет "послезавтра", то реузльтат 1 == завтра
-            if ( order.getText().lastIndexOf("послезавтра") == -1 )
-                return 1;
-            //иначе "послезавтра"
+        //"послезавтра" товар послезавтра будет 2 дней ждать
+        if (order.getText().lastIndexOf("послезавтра") != -1)
             return 2;
+        //"завтра" товар завтра будет 1 дней ждать
+        if (order.getText().lastIndexOf("завтра") != -1)
+            return 1;
+        //"сегодня" товар сегодня будет 0 дней ждать
+        if (order.getText().lastIndexOf("сегодня") != -1)
+            return 0;
+        //3,4..21 дней для доставки
+        if (!order.getText().replaceAll("[^0-9\\+]", "").isEmpty()) {
+            Integer wait = Integer.parseInt(order.getText().replaceAll("[^0-9\\+]", ""));
+            //если получилось число больше 22, то это что-то другое :)
+            if (wait < 22)
+                return wait;
         }
-        return Integer.parseInt(order.getText().replaceAll("[^0-9\\+]", ""));
+        //тут не должны оказаться
+        return 0;
     }
-
 }
