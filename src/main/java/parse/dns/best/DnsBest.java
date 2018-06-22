@@ -3,6 +3,8 @@ package parse.dns.best;
 import com.google.gson.Gson;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import parse.dns.Available;
@@ -15,11 +17,11 @@ import java.util.List;
 public class DnsBest implements BestParser {
 
     WebDriver driver;
-    JavascriptExecutor jse;
     String City;
 
     @Override
     public ArrayList<Product> parser(String userCity) {
+
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.get("https://www.dns-shop.ru/");
@@ -67,13 +69,12 @@ public class DnsBest implements BestParser {
         cityInput.sendKeys(userCity);
         // если город найден однозначно (появилась подсказка), то меняет город
         if (driver.findElement(By.xpath("//div[contains(@class,'show-hint')]")).isDisplayed()) {
+            currentCity = driver.findElement(By.xpath("//div[contains(@class,'show-hint')]/b")).getText().replaceAll("\\s+", "");
             cityInput.sendKeys(Keys.ENTER);
-            return driver.findElement(By.xpath("//div[contains(@class,'show-hint')]/b")).getText().replaceAll("\\s+","");
-        // город определить не удалось
-        } else {
+        } // город определить не удалось
+        else
             driver.findElement(By.xpath("//div[contains(@class,'select-city-modal') and not(contains(@id,'select-city'))]//button[contains(@data-dismiss,'modal')]")).click();
-            return currentCity;
-        }
+        return currentCity;
     }
 
     private Product getproduct(String url) {

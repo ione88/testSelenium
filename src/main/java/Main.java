@@ -49,7 +49,7 @@ public class Main {
     }
 
     private static void RunParseYandexZen(DataSource dataSource, MyParser parser, String City) throws SQLException {
-        for (News news : parser.parseYandexNews(City))
+        for (News news : parser.parseYandexZen(City))
             Insert.news(dataSource, news);
     }
 
