@@ -16,9 +16,7 @@ public class MyParser {
 
 
     @Inject
-    public MyParser(NewsParser newsParserNews,
-                    ZenParser zenParserZen,
-                    BestParser bestParserBest) {
+    public MyParser(NewsParser newsParserNews, ZenParser zenParserZen, BestParser bestParserBest) {
         this.yandexNews = newsParserNews;
         this.yandexZen = zenParserZen;
         this.dnsBest = bestParserBest;
@@ -33,7 +31,7 @@ public class MyParser {
         return yandexZen.parser(city);
     }
 
-    public ArrayList<Product> parseDnsBest(String city)  {
+    public ArrayList<Product> parseDnsBest(String city) {
         return dnsBest.parser(city);
     }
 }

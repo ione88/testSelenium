@@ -12,6 +12,9 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+import static java.lang.Long.max;
+import static java.lang.Long.parseLong;
+
 
 public class Main {
 
@@ -35,6 +38,7 @@ public class Main {
         RunParseDnsBest(dataSource.getDataSource(), myParser, userCity);
     }
 
+
     private static String enterCity(String defualtCity) {
         Scanner in = new Scanner(System.in);
         System.out.print("Введите ваш город или нажмите Enter для г." + defualtCity + ": ");
@@ -56,7 +60,7 @@ public class Main {
     private static void RunParseDnsBest(DataSource dataSource, MyParser parser, String City) throws SQLException {
         for (Product product : parser.parseDnsBest(City)) {
             Insert.product(dataSource, product);
-            //добавляем информацию о доступности товара в магазинах
+            //добавляем информацию о доступности товара в магазинах города
             for (Available available : product.getAvailables())
                 Insert.available(dataSource, available);
         }

@@ -3,6 +3,8 @@ package parse.dns.best;
 import com.google.gson.Gson;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import parse.dns.Available;
@@ -10,6 +12,7 @@ import parse.dns.ParametrsMap;
 import parse.dns.Product;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DnsBest implements BestParser {
@@ -19,7 +22,6 @@ public class DnsBest implements BestParser {
 
     @Override
     public ArrayList<Product> parser(String userCity) {
-
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.get("https://www.dns-shop.ru/");
@@ -188,7 +190,7 @@ public class DnsBest implements BestParser {
         //3,4..21 дней для доставки
         if (!order.getText().replaceAll("[^0-9\\+]", "").isEmpty()) {
             Integer wait = Integer.parseInt(order.getText().replaceAll("[^0-9\\+]", ""));
-            //если получилось число больше 22, то это что-то другое :)
+            //если получилось число больше 22, это уже не количество дней.
             if (wait < 22)
                 return wait;
         }

@@ -9,6 +9,5 @@ public class DataSourceModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new ConfigurationModule().fromPath(new File("./src/main/resources/")));
-
     }
 }

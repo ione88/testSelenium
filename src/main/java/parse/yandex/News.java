@@ -1,7 +1,5 @@
 package parse.yandex;
 
-import org.openqa.selenium.WebElement;
-
 public class News {
 
     String title;
